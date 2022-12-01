@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bitfield/script"
 	"github.com/davecgh/go-spew/spew"
+	"strconv"
 )
 
 func main() {
@@ -21,7 +22,25 @@ func Solve() {
 }
 
 func maxCalBySingleElf(input []string) (highestTotal int) {
-	// Track highest calory
-	highestTotal = 24000
+	currentCaloric := 0
+	// Track highest calory - highestTotal
+	for _, v := range input {
+		// Exit condition ..
+		if v == "" {
+			// Evaluate .. + exit condition ..
+			if currentCaloric > highestTotal {
+				highestTotal = currentCaloric
+			}
+			// reset for each Elf
+			currentCaloric = 0
+		} else {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				panic(err)
+			}
+			currentCaloric += n
+		}
+	}
+
 	return highestTotal
 }
