@@ -45,11 +45,11 @@ func Test_maxCalByTop3Elves(t *testing.T) {
 		args             args
 		wantHighestTotal int
 	}{
-		{"simple-single", args{[]string{"4000"}}, 4000},
-		{"simple-double", args{[]string{
-			"4000", "",
-			"6000", "",
-		}}, 10000},
+		//{"simple-single", args{[]string{"4000"}}, 4000},
+		//{"simple-double", args{[]string{
+		//	"4000", "",
+		//	"6000", "",
+		//}}, 10000},
 		{"simple-triple", args{[]string{
 			"4000", "",
 			"6000", "",
