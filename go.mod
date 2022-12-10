@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/bitfield/script v0.21.3
 	github.com/davecgh/go-spew v1.1.1
+	github.com/emirpasic/gods v1.18.1
 )
 
 require (
