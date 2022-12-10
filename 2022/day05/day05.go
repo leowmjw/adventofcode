@@ -11,8 +11,9 @@ func main() {
 
 	fmt.Println("Day 05 ..")
 	//Part1("testdata/sample.txt")
-	Part1("testdata/input.txt")
-
+	//Part1("testdata/input.txt")
+	//Part2("testdata/sample.txt")
+	Part2("testdata/input.txt")
 }
 
 func Part1(filePath string) {
@@ -119,5 +120,93 @@ func Part1(filePath string) {
 		if v, ok := stacks[i].Peek(); ok {
 			fmt.Print(v)
 		}
+	}
+}
+
+func Part2(filePath string) {
+	data, err := script.File(filePath).Slice()
+	if err != nil {
+		panic(err)
+	}
+	numOfStack := 0
+	executeAction := false
+	var queueSetup [][]string
+	//var stacks []*arraystack.Stack
+	for _, l := range data {
+		if executeAction {
+			// DEBUG
+			//spew.Dump(queueSetup)
+			var numBlocks, fromStack, toStack int
+			// Now in the instructions mode
+			_, err := fmt.Sscanf(l, "move %d from %d to %d", &numBlocks, &fromStack, &toStack)
+			if err != nil {
+				//panic(err)
+				continue
+			}
+			fid := fromStack - 1
+			tid := toStack - 1
+			// DEBUG
+			//fmt.Println("MOVE:", numBlocks, "FROM_ID:", fid, "TO_ID:", tid)
+			// DEBUG
+			//fmt.Println("BEFORE")
+			//spew.Dump(queueSetup[fid])
+			//spew.Dump(queueSetup[tid])
+			// Remove numBlocks element from FID
+			// The FROM acts as the starting; take existing and return as new existing ..
+			newTop := make([]string, numBlocks)
+			copy(newTop, queueSetup[fid][:numBlocks])
+			// Remove top from old Stack
+			if len(queueSetup[fid]) == numBlocks {
+				queueSetup[fid] = nil
+			} else {
+				queueSetup[fid] = queueSetup[fid][numBlocks:]
+			}
+			// DEBUG
+			//spew.Dump(newTop)
+			// New Stack
+			queueSetup[tid] = append(newTop, queueSetup[tid]...)
+			// DEBUG
+			//fmt.Println("AFTER")
+			//spew.Dump(queueSetup[fid])
+			//spew.Dump(queueSetup[tid])
+		} else {
+			cols := strings.Split(l, "")
+			// Check exit condition; a '1'
+			// If see '1'; is a border; last number is x * n
+			if cols[1] == "1" {
+				// DEBUG
+				//spew.Dump(queueSetup)
+				executeAction = true
+				continue
+			}
+			// Setup one time at the start of the cycle
+			if numOfStack == 0 {
+				numOfStack = len(cols)/4 + 1
+				//fmt.Println("NO_STACK:", numOfStack)
+				queueSetup = make([][]string, numOfStack)
+			}
+			// Extract out the block based on numOfStack
+			for i := 0; i < numOfStack; i++ {
+				cellContent := strings.TrimSpace(cols[i*4+1])
+				// DEBUG
+				// fmt.Print("BLOCK:", cellContent)
+				// Push into your own stack .. if NOT empty
+				if cellContent != "" {
+					// DEBUG
+					//fmt.Println("APPEND", cellContent, "into Slice", i)
+					//spew.Dump(queueSetup)
+					//if queueSetup[i] == nil {
+					//	// init make
+					//	queueSetup[i] = make([]string, 0)
+					//} else {
+					queueSetup[i] = append(queueSetup[i], cellContent)
+					//}
+				}
+			}
+		}
+	}
+
+	for i := 0; i < len(queueSetup); i++ {
+		fmt.Print(queueSetup[i][0])
 	}
 }
