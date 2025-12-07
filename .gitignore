@@ -20,3 +20,5 @@
 # Ignore direnv
 .envrc*
 
+# Ignore mise
+mise.local.toml
