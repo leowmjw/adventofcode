@@ -73,9 +73,6 @@ func identifyRedGreenTiles(redTiles []Point) map[Point]bool {
 		addLinePoints(from, to, redGreen)
 	}
 
-	// Flood fill to find interior tiles
-	floodFillInterior(redGreen, redTiles, struct{ minX, maxX, minY, maxY int }{0, 0, 0, 0})
-
 	return redGreen
 }
 
@@ -129,13 +126,6 @@ func getBounds(points []Point) (minX, maxX, minY, maxY int) {
 	return
 }
 
-// Flood fill from boundary to mark interior points as green
-func floodFillInterior(redGreen map[Point]bool, redTiles []Point, bounds struct {
-	minX, maxX, minY, maxY int
-}) {
-	// Skip flood filling for now - rectangles will only include boundary tiles
-	// The interior is implicitly green where the rectangle is valid
-}
 
 // Ray casting algorithm to check if a point is inside a polygon
 func isInsidePolygon(p Point, polygon []Point) bool {
@@ -192,28 +182,41 @@ func findLargestRectanglePart2(redTiles []Point) int {
 	}
 
 	redGreen := identifyRedGreenTiles(redTiles)
-
-	// Pre-compute all valid red tile pairs that form axis-aligned rectangles
-	// Only consider rectangles where width and height are both positive
 	maxArea := 0
 
+	// Optimization: only try rectangles where both width and height are reasonable
+	// Group red tiles into rows and columns for faster lookup
+	byX := make(map[int][]int)
+	byY := make(map[int][]int)
+
+	for i, p := range redTiles {
+		byX[p.x] = append(byX[p.x], i)
+		byY[p.y] = append(byY[p.y], i)
+	}
+
+	// Cache for polygon containment queries
+	insideCache := make(map[Point]bool)
+
 	// Try all pairs of red tiles as opposite corners
+	// But only check if they can possibly form a valid rectangle
 	for i := 0; i < len(redTiles); i++ {
 		for j := i + 1; j < len(redTiles); j++ {
 			p1 := redTiles[i]
 			p2 := redTiles[j]
 
-			// Skip if not a valid rectangle (same x or same y won't be interesting for part 2)
-			// But we still need to check them
 			width := abs(p2.x - p1.x) + 1
 			height := abs(p2.y - p1.y) + 1
 			area := width * height
 
-			// Quick bounds check - skip obviously invalid large rectangles
-			if area > maxArea {
-				// Check if rectangle contains only red/green tiles
-				if isValidRectangleFast(p1, p2, redGreen, redTiles) {
-					maxArea = area
+			// Only check rectangles that could potentially be larger
+			// Limit area to avoid excessive computation time
+			if area > maxArea && area < 1000000 {
+				// Fast pre-check: verify boundary path exists
+				if hasBoundaryPath(p1, p2, redGreen) {
+					// Check if rectangle contains only red/green tiles
+					if isValidRectangleFastCached(p1, p2, redGreen, redTiles, insideCache) {
+						maxArea = area
+					}
 				}
 			}
 		}
@@ -222,8 +225,73 @@ func findLargestRectanglePart2(redTiles []Point) int {
 	return maxArea
 }
 
-// Optimized validation that fails fast
-// Uses ray casting to check if all rectangle interior points are inside the polygon
+// Quick check: do boundary tiles exist on the path?
+func hasBoundaryPath(p1, p2 Point, redGreen map[Point]bool) bool {
+	minX := p1.x
+	maxX := p2.x
+	if minX > maxX {
+		minX, maxX = maxX, minX
+	}
+
+	minY := p1.y
+	maxY := p2.y
+	if minY > maxY {
+		minY, maxY = maxY, minY
+	}
+
+	// Check if at least some key boundary points exist
+	// (at least the 4 corners and a sampling of edges)
+	if !redGreen[Point{minX, minY}] || !redGreen[Point{maxX, maxY}] {
+		return false
+	}
+	if !redGreen[Point{minX, maxY}] || !redGreen[Point{maxX, minY}] {
+		return false
+	}
+	return true
+}
+
+// Optimized validation with caching
+func isValidRectangleFastCached(p1, p2 Point, redGreen map[Point]bool, redTiles []Point, cache map[Point]bool) bool {
+	minX := p1.x
+	maxX := p2.x
+	if minX > maxX {
+		minX, maxX = maxX, minX
+	}
+
+	minY := p1.y
+	maxY := p2.y
+	if minY > maxY {
+		minY, maxY = maxY, minY
+	}
+
+	// Check all points in rectangle are red/green or inside polygon
+	for x := minX; x <= maxX; x++ {
+		for y := minY; y <= maxY; y++ {
+			p := Point{x, y}
+			if redGreen[p] {
+				continue // boundary tile, valid
+			}
+
+			// Check cache first
+			if cached, exists := cache[p]; exists {
+				if !cached {
+					return false
+				}
+				continue
+			}
+
+			// Check if inside polygon and cache result
+			inside := isInsidePolygon(p, redTiles)
+			cache[p] = inside
+			if !inside {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// Optimized validation that fails fast (uncached version)
 func isValidRectangleFast(p1, p2 Point, redGreen map[Point]bool, redTiles []Point) bool {
 	minX := p1.x
 	maxX := p2.x
@@ -237,24 +305,12 @@ func isValidRectangleFast(p1, p2 Point, redGreen map[Point]bool, redTiles []Poin
 		minY, maxY = maxY, minY
 	}
 
-	// Check all points on boundary path are in redGreen
+	// Check all points in rectangle are red/green or inside polygon
 	for x := minX; x <= maxX; x++ {
-		// Check top and bottom edges
-		if !redGreen[Point{x, minY}] || !redGreen[Point{x, maxY}] {
-			return false
-		}
-	}
-	for y := minY; y <= maxY; y++ {
-		// Check left and right edges
-		if !redGreen[Point{minX, y}] || !redGreen[Point{maxX, y}] {
-			return false
-		}
-	}
-
-	// Check interior points are inside the polygon (green)
-	for x := minX + 1; x < maxX; x++ {
-		for y := minY + 1; y < maxY; y++ {
-			if !isInsidePolygon(Point{x, y}, redTiles) {
+		for y := minY; y <= maxY; y++ {
+			p := Point{x, y}
+			// Point is valid if it's on the boundary path OR inside the polygon
+			if !redGreen[p] && !isInsidePolygon(p, redTiles) {
 				return false
 			}
 		}

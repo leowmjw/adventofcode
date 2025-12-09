@@ -287,14 +287,14 @@ func TestIdentifyRedGreenTiles(t *testing.T) {
 	tests := []struct {
 		name          string
 		redTiles      []Point
-		expectedCount int // at least this many red/green tiles
+		expectedCount int // at least this many red/green tiles (just boundary now)
 	}{
 		{
 			name: "Simple square boundary",
 			redTiles: []Point{
 				{0, 0}, {0, 2}, {2, 2}, {2, 0},
 			},
-			expectedCount: 8, // boundary tiles on perimeter (no interior since we skip flood fill)
+			expectedCount: 8, // boundary tiles only
 		},
 		{
 			name: "Vertical line",
