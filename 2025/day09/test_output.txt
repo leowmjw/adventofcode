@@ -1,0 +1,76 @@
+=== RUN   TestFindLargestRectangle
+=== RUN   TestFindLargestRectangle/Example_from_problem_-_area_50_(corners_2,5_and_11,1)
+=== RUN   TestFindLargestRectangle/No_points
+=== RUN   TestFindLargestRectangle/Single_point
+=== RUN   TestFindLargestRectangle/Two_points_-_vertical_line_(same_x,_area_11)
+=== RUN   TestFindLargestRectangle/Two_points_-_horizontal_line_(same_y,_area_11)
+=== RUN   TestFindLargestRectangle/Two_points_-_thin_rectangle_(area_6,_1_tall_line)
+=== RUN   TestFindLargestRectangle/Two_points_-_rectangle_(area_24)
+=== RUN   TestFindLargestRectangle/Three_points_-_max_area_121
+=== RUN   TestFindLargestRectangle/Four_points_-_square_(area_36)
+=== RUN   TestFindLargestRectangle/Negative_coordinates_(area_121)
+=== RUN   TestFindLargestRectangle/Mixed_positive_and_negative_(area_231)
+=== RUN   TestFindLargestRectangle/All_points_on_same_x-axis_(max_area_16,_from_0_to_15)
+=== RUN   TestFindLargestRectangle/All_points_on_same_y-axis_(max_area_16,_from_0_to_15)
+=== RUN   TestFindLargestRectangle/Large_coordinate_values_(same_y,_area_675)
+=== RUN   TestFindLargestRectangle/Two_points_with_large_area_(1002001)
+--- PASS: TestFindLargestRectangle (0.00s)
+    --- PASS: TestFindLargestRectangle/Example_from_problem_-_area_50_(corners_2,5_and_11,1) (0.00s)
+    --- PASS: TestFindLargestRectangle/No_points (0.00s)
+    --- PASS: TestFindLargestRectangle/Single_point (0.00s)
+    --- PASS: TestFindLargestRectangle/Two_points_-_vertical_line_(same_x,_area_11) (0.00s)
+    --- PASS: TestFindLargestRectangle/Two_points_-_horizontal_line_(same_y,_area_11) (0.00s)
+    --- PASS: TestFindLargestRectangle/Two_points_-_thin_rectangle_(area_6,_1_tall_line) (0.00s)
+    --- PASS: TestFindLargestRectangle/Two_points_-_rectangle_(area_24) (0.00s)
+    --- PASS: TestFindLargestRectangle/Three_points_-_max_area_121 (0.00s)
+    --- PASS: TestFindLargestRectangle/Four_points_-_square_(area_36) (0.00s)
+    --- PASS: TestFindLargestRectangle/Negative_coordinates_(area_121) (0.00s)
+    --- PASS: TestFindLargestRectangle/Mixed_positive_and_negative_(area_231) (0.00s)
+    --- PASS: TestFindLargestRectangle/All_points_on_same_x-axis_(max_area_16,_from_0_to_15) (0.00s)
+    --- PASS: TestFindLargestRectangle/All_points_on_same_y-axis_(max_area_16,_from_0_to_15) (0.00s)
+    --- PASS: TestFindLargestRectangle/Large_coordinate_values_(same_y,_area_675) (0.00s)
+    --- PASS: TestFindLargestRectangle/Two_points_with_large_area_(1002001) (0.00s)
+=== RUN   TestAbsFunction
+=== RUN   TestAbsFunction/#00
+=== RUN   TestAbsFunction/#01
+=== RUN   TestAbsFunction/#02
+=== RUN   TestAbsFunction/#03
+=== RUN   TestAbsFunction/#04
+--- PASS: TestAbsFunction (0.00s)
+    --- PASS: TestAbsFunction/#00 (0.00s)
+    --- PASS: TestAbsFunction/#01 (0.00s)
+    --- PASS: TestAbsFunction/#02 (0.00s)
+    --- PASS: TestAbsFunction/#03 (0.00s)
+    --- PASS: TestAbsFunction/#04 (0.00s)
+=== RUN   TestParseInput
+=== RUN   TestParseInput/Parse_valid_input_file
+--- PASS: TestParseInput (0.00s)
+    --- PASS: TestParseInput/Parse_valid_input_file (0.00s)
+=== RUN   TestRectangleAreaCalculation
+=== RUN   TestRectangleAreaCalculation/Simple_rectangle_3x4_(inclusive)
+=== RUN   TestRectangleAreaCalculation/Rectangle_6x11_(inclusive)
+=== RUN   TestRectangleAreaCalculation/Square_6x6_(inclusive)
+=== RUN   TestRectangleAreaCalculation/Reversed_coordinates_(same_result)
+=== RUN   TestRectangleAreaCalculation/Same_point_(area_1)
+=== RUN   TestRectangleAreaCalculation/Same_x_-_vertical_line_(width_1)
+=== RUN   TestRectangleAreaCalculation/Same_y_-_horizontal_line_(height_1)
+--- PASS: TestRectangleAreaCalculation (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Simple_rectangle_3x4_(inclusive) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Rectangle_6x11_(inclusive) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Square_6x6_(inclusive) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Reversed_coordinates_(same_result) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Same_point_(area_1) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Same_x_-_vertical_line_(width_1) (0.00s)
+    --- PASS: TestRectangleAreaCalculation/Same_y_-_horizontal_line_(height_1) (0.00s)
+=== RUN   TestEdgeCases
+=== RUN   TestEdgeCases/Very_close_coordinates
+=== RUN   TestEdgeCases/Duplicate_points
+=== RUN   TestEdgeCases/Three_collinear_points
+=== RUN   TestEdgeCases/Many_points,_largest_is_last_pair
+--- PASS: TestEdgeCases (0.00s)
+    --- PASS: TestEdgeCases/Very_close_coordinates (0.00s)
+    --- PASS: TestEdgeCases/Duplicate_points (0.00s)
+    --- PASS: TestEdgeCases/Three_collinear_points (0.00s)
+    --- PASS: TestEdgeCases/Many_points,_largest_is_last_pair (0.00s)
+PASS
+ok  	aoc/2025/day09	0.002s
