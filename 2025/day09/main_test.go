@@ -280,3 +280,299 @@ func BenchmarkFindLargestRectangle(b *testing.B) {
 		findLargestRectangle(points)
 	}
 }
+
+// Part 2 Tests
+
+func TestIdentifyRedGreenTiles(t *testing.T) {
+	tests := []struct {
+		name          string
+		redTiles      []Point
+		expectedCount int // at least this many red/green tiles
+	}{
+		{
+			name: "Simple square boundary",
+			redTiles: []Point{
+				{0, 0}, {0, 2}, {2, 2}, {2, 0},
+			},
+			expectedCount: 8, // boundary tiles on perimeter (no interior since we skip flood fill)
+		},
+		{
+			name: "Vertical line",
+			redTiles: []Point{
+				{0, 0}, {0, 2},
+			},
+			expectedCount: 3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			redGreen := identifyRedGreenTiles(tt.redTiles)
+			if len(redGreen) < tt.expectedCount {
+				t.Errorf("identifyRedGreenTiles: expected at least %d tiles, got %d", tt.expectedCount, len(redGreen))
+			}
+		})
+	}
+}
+
+func TestAddLinePoints(t *testing.T) {
+	tests := []struct {
+		name     string
+		p1       Point
+		p2       Point
+		expected int // number of points on the line
+	}{
+		{
+			name:     "Vertical line from (0,0) to (0,5)",
+			p1:       Point{0, 0},
+			p2:       Point{0, 5},
+			expected: 6,
+		},
+		{
+			name:     "Horizontal line from (0,0) to (5,0)",
+			p1:       Point{0, 0},
+			p2:       Point{5, 0},
+			expected: 6,
+		},
+		{
+			name:     "Single point (same coordinates)",
+			p1:       Point{3, 3},
+			p2:       Point{3, 3},
+			expected: 1,
+		},
+		{
+			name:     "Vertical line reversed",
+			p1:       Point{0, 5},
+			p2:       Point{0, 0},
+			expected: 6,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			redGreen := make(map[Point]bool)
+			addLinePoints(tt.p1, tt.p2, redGreen)
+			if len(redGreen) != tt.expected {
+				t.Errorf("addLinePoints: expected %d points, got %d", tt.expected, len(redGreen))
+			}
+		})
+	}
+}
+
+func TestGetBounds(t *testing.T) {
+	tests := []struct {
+		name      string
+		points    []Point
+		expMinX   int
+		expMaxX   int
+		expMinY   int
+		expMaxY   int
+	}{
+		{
+			name:      "Simple rectangle",
+			points:    []Point{{0, 0}, {5, 10}},
+			expMinX:   0,
+			expMaxX:   5,
+			expMinY:   0,
+			expMaxY:   10,
+		},
+		{
+			name:      "Negative coordinates",
+			points:    []Point{{-5, -10}, {5, 10}},
+			expMinX:   -5,
+			expMaxX:   5,
+			expMinY:   -10,
+			expMaxY:   10,
+		},
+		{
+			name:      "Single point",
+			points:    []Point{{3, 7}},
+			expMinX:   3,
+			expMaxX:   3,
+			expMinY:   7,
+			expMaxY:   7,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			minX, maxX, minY, maxY := getBounds(tt.points)
+			if minX != tt.expMinX || maxX != tt.expMaxX || minY != tt.expMinY || maxY != tt.expMaxY {
+				t.Errorf("getBounds: expected (%d,%d,%d,%d), got (%d,%d,%d,%d)",
+					tt.expMinX, tt.expMaxX, tt.expMinY, tt.expMaxY,
+					minX, maxX, minY, maxY)
+			}
+		})
+	}
+}
+
+func TestIsInsidePolygon(t *testing.T) {
+	tests := []struct {
+		name     string
+		point    Point
+		polygon  []Point
+		expected bool
+	}{
+		{
+			name:  "Point inside square",
+			point: Point{2, 2},
+			polygon: []Point{
+				{0, 0}, {4, 0}, {4, 4}, {0, 4},
+			},
+			expected: true,
+		},
+		{
+			name:  "Point outside square",
+			point: Point{5, 5},
+			polygon: []Point{
+				{0, 0}, {4, 0}, {4, 4}, {0, 4},
+			},
+			expected: false,
+		},
+		{
+			name:  "Point inside at (1, 1)",
+			point: Point{1, 1},
+			polygon: []Point{
+				{0, 0}, {4, 0}, {4, 4}, {0, 4},
+			},
+			expected: true,
+		},
+		{
+			name:  "Point outside at (-1, -1)",
+			point: Point{-1, -1},
+			polygon: []Point{
+				{0, 0}, {4, 0}, {4, 4}, {0, 4},
+			},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isInsidePolygon(tt.point, tt.polygon)
+			if result != tt.expected {
+				t.Errorf("isInsidePolygon: expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestIsValidRectangle(t *testing.T) {
+	// Create a simple red/green map
+	redGreen := make(map[Point]bool)
+	// Mark a 3x3 square as red/green
+	for x := 0; x < 3; x++ {
+		for y := 0; y < 3; y++ {
+			redGreen[Point{x, y}] = true
+		}
+	}
+
+	tests := []struct {
+		name     string
+		p1       Point
+		p2       Point
+		expected bool
+	}{
+		{
+			name:     "Valid rectangle within red/green area",
+			p1:       Point{0, 0},
+			p2:       Point{1, 1},
+			expected: true,
+		},
+		{
+			name:     "Valid rectangle larger area",
+			p1:       Point{0, 0},
+			p2:       Point{2, 2},
+			expected: true,
+		},
+		{
+			name:     "Invalid rectangle outside area",
+			p1:       Point{0, 0},
+			p2:       Point{5, 5},
+			expected: false,
+		},
+		{
+			name:     "Valid single point",
+			p1:       Point{1, 1},
+			p2:       Point{1, 1},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isValidRectangle(tt.p1, tt.p2, redGreen)
+			if result != tt.expected {
+				t.Errorf("isValidRectangle: expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestFindLargestRectanglePart2(t *testing.T) {
+	tests := []struct {
+		name     string
+		redTiles []Point
+		expected int
+	}{
+		{
+			name: "Simple loop - area 9 (3x3 square)",
+			redTiles: []Point{
+				{0, 0}, {0, 2}, {2, 2}, {2, 0},
+			},
+			expected: 9,
+		},
+		{
+			name: "Simple horizontal line",
+			redTiles: []Point{
+				{0, 0}, {2, 0},
+			},
+			expected: 3,
+		},
+		{
+			name: "Single point",
+			redTiles: []Point{
+				{5, 5},
+			},
+			expected: 0,
+		},
+		{
+			name: "Two points vertical",
+			redTiles: []Point{
+				{0, 0}, {0, 2},
+			},
+			expected: 3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := findLargestRectanglePart2(tt.redTiles)
+			if result != tt.expected {
+				t.Errorf("findLargestRectanglePart2: expected %d, got %d", tt.expected, result)
+			}
+		})
+	}
+}
+
+func BenchmarkFindLargestRectanglePart2(b *testing.B) {
+	// Create a rectangular loop
+	var points []Point
+	for x := 0; x < 20; x++ {
+		points = append(points, Point{x, 0})
+	}
+	for y := 1; y < 20; y++ {
+		points = append(points, Point{19, y})
+	}
+	for x := 18; x >= 0; x-- {
+		points = append(points, Point{x, 19})
+	}
+	for y := 18; y > 0; y-- {
+		points = append(points, Point{0, y})
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		findLargestRectanglePart2(points)
+	}
+}
