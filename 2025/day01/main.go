@@ -71,81 +71,44 @@ func part1(input string) {
 }
 
 func part2(input string) {
-	// Difference is now it takes the mod results as additional count too ..
-	// If action is 'L'; then compare if eq, less, more ..
-	s, serr := script.File(input).FilterLine(func(s string) string {
-		// Split command; Left is negative
-		if s[0] == 'L' {
-			s = "-" + s[1:]
-		} else {
-			s = "+" + s[1:]
-		}
-		return s
-	}).Slice()
-	if serr != nil {
-		panic(serr)
+	lines, err := script.File(input).Slice()
+	if err != nil {
+		panic(err)
 	}
-
-	// Find out how far from the edge; start of 50; it is 44 from edge both side
-	// howFarFromHundred ...
-	//spew.Dump(s)
 
 	count := 0
 	current := 50
-	//startedPositive := true
-	// Rule is simpler .. no need modulus
-	// If it reaches exactly 0; the increase the counter
-	for _, action := range s {
-		fmt.Println(action)
-		step, cerr := strconv.Atoi(action)
-		if cerr != nil {
-			panic(cerr)
-		}
-		// If currently positve; startedPositive == true
-		// If currently negative; startedPositive == false
-		//if current < 0 {
-		//	startedPositive = false
-		//}
-		current += step
-		if current == 0 || current == 100 {
-			count++
-		} else if current < 0 {
-			//if startedPositive == true {
-			count++
-			fmt.Println("LtoR Count: ", count)
-			//}
-		} else if current > 100 {
-			//if startedPositive == false {
-			count++
-			fmt.Println("RtoL Count: ", count)
-			//}
-		}
-		// HOw many times over 100
-		multiple := current / 100
-		if multiple < 0 {
-			multiple = multiple * -1
-		}
-		if multiple > 0 {
-			count += multiple
-			fmt.Println("Count: ", count)
+
+	for _, line := range lines {
+		if len(line) < 2 {
+			continue
 		}
 
-		fmt.Println("Multiple: ", multiple)
-		current = current % 100
-		if current < 0 {
-			// readjust dial
-			current += 100
+		direction := line[0]
+		clicksStr := line[1:]
+		clicks, err := strconv.Atoi(clicksStr)
+		if err != nil {
+			panic(err)
 		}
-		fmt.Println("Current after step: ", current)
-		// now not just 0
-		// but count the left over from mod ..
-		//if current == 0 {
-		//	count++
-		//}
-		// In Go; can have begative mod .. but does not matter if divide
-		// by 100; any non-zero then add on ..
-		// If match == 0; the multiple == 1
+
+		step := 1
+		if direction == 'L' {
+			step = -1
+		}
+
+		fmt.Printf("Starting rotation: %s, current=%d, clicks=%d, step=%d\n", line, current, clicks, step)
+
+		// Simulate each click
+		for i := 0; i < clicks; i++ {
+			current = ((current+step)%100 + 100) % 100
+			if current == 0 {
+				count++
+				fmt.Printf("  Click %d: current=%d, count=%d\n", i+1, current, count)
+			}
+		}
+
+		fmt.Printf("After rotation: current=%d\n", current)
 	}
 
-	fmt.Println("Count: ", count)
+	fmt.Println("Final count:", count)
 }
