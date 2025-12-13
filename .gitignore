@@ -22,3 +22,11 @@
 
 # Ignore mise
 mise.local.toml
+
+### Rust template
+debug/
+target/
+**/*.rs.bk
+*.pdb
+logs
+data
