@@ -1,0 +1,16 @@
+[package]
+name = "day01-rust-amp"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+
+[dev-dependencies]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.bench]
+inherits = "release"
