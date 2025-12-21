@@ -20,74 +20,43 @@ func main() {
 	//part1("input.txt")
 
 	//part2("test.txt")
-	part2("part1.txt")
+	part2("input.txt")
+}
+
+// isRepeatingPattern checks if a string is made of a pattern repeated at least twice
+func isRepeatingPattern(s string) bool {
+	n := len(s)
+	// Try all possible pattern lengths from 1 to n/2
+	// Pattern must repeat at least twice, so max pattern length is n/2
+	for patLen := 1; patLen <= n/2; patLen++ {
+		// The total length must be divisible by pattern length
+		if n%patLen != 0 {
+			continue
+		}
+		pattern := s[:patLen]
+		matches := true
+		// Check if the pattern repeats throughout the string
+		for i := patLen; i < n; i += patLen {
+			if s[i:i+patLen] != pattern {
+				matches = false
+				break
+			}
+		}
+		if matches {
+			return true
+		}
+	}
+	return false
 }
 
 func findRepeatedAtLeastTwice(start, finish int) int {
-	// Start from slice of 1 till .. max half ..
-	// Start with pair of 1; 2; 3 ..
-	fmt.Println("Finding dupes between", start, "and", finish)
 	invalidSum := 0
 	for i := start; i <= finish; i++ {
-		// Split into half by len which wiuld be max
-		// If len is not divisible by 2 .. skip ..
 		strascii := strconv.Itoa(i)
-		strlen := len(strascii)
-		fmt.Println("LEN: ", strlen)
-
-		var left, right string
-
-		// same as part1; but we only extract out left + right ..
-		if strlen%2 == 0 {
-			fmt.Println("MULTIPLE of 2: ", i)
-			left = strascii[:strlen/2]
-			right = strascii[strlen/2:]
-		} else if strlen%3 == 0 {
-			fmt.Println("MULTIPLE of 3: ", i)
-			// left is the first 3rd ..
-			left = strascii[:strlen/3]
-			if strlen != 3 {
-				right = strascii[strlen/3 : strlen/3+3]
-			}
-		} else if strlen%5 == 0 {
-			fmt.Println("MULTIPLE of 5: ", i)
-			left = strascii[:strlen/5]
-			if strlen != 5 {
-				right = strascii[strlen/5 : strlen/5+5]
-			}
-		} else if strlen%7 == 0 {
-			fmt.Println("MULTIPLE of 7: ", i)
-			left = strascii[:strlen/7]
-			if strlen != 7 {
-				right = strascii[strlen/7 : strlen/7+7]
-			}
-		} else {
-			continue
-		}
-		fmt.Println("LEFT:", left, " RIGHT: ", right)
-		// If get here can now check if left == right; meaning at least 2 match!
-		if left == right {
-			fmt.Println("Found dupes: ", strascii)
+		if isRepeatingPattern(strascii) {
 			invalidSum += i
-		} else if strlen > 2 {
-			// Check all the rest of the numbers in the
-			for j := 1; j < strlen; j++ {
-				if strascii[0] != strascii[j] {
-					// quick break
-					fmt.Println("NOT SPECIAL CASE: Skip!!", strascii)
-					goto skipdupe
-				}
-			}
-			// got this far means they are all the same!!
-			fmt.Println("SPECIAL SINGLE CASE: Found dupes: ", strascii)
-			invalidSum += i
-		skipdupe:
 		}
-
 	}
-	fmt.Println("Invalid Sum: ", invalidSum)
-	fmt.Println("Done ==========>>")
-
 	return invalidSum
 }
 
